@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit,HostListener } from '@angular/core';
 import { CalculadoraService} from '../services';
 
 @Component({
@@ -17,6 +17,36 @@ export class CalculadoraComponent implements OnInit {
 
   ngOnInit(): void {
     this.limpar();
+  }
+
+  /**
+   * Funcao para pegar a tecla digitada
+   * 
+   * @param event evento
+   */
+  @HostListener('window:keyup', ['$event'])
+  keyEvent(event: KeyboardEvent) {
+
+    let numeros = ['0','1','2','3','4','5','6','7','8','9','.',','];
+    let operadores = ['+','-','*','/'];
+    let limpar = ['c','Backspace','Delete'];
+    let result = ['=','Enter'];
+    console.log(event);
+    
+    //se a tecla digitada for de 0 a 9 chama a funcao adicionarNumero
+    if(numeros.includes(event.key)){
+      this.adicionarNumero(event.key);
+    }
+    if(operadores.includes(event.key)){
+      this.definirOperacao(event.key);
+    } 
+    if(limpar.includes(event.key)) {
+      this.limpar();
+    }
+    if(result.includes(event.key)){
+      this.calcular();
+    }
+    
   }
 
   limpar(): void{
@@ -41,12 +71,12 @@ export class CalculadoraComponent implements OnInit {
     }
     
     //primeiro digito é ., concatena 0  antes do ponto
-    if(numConcat === '.' && numAtual === ''){
+    if((numConcat === '.'|| numConcat === ',' ) && numAtual === ''){
       return '0.';
     }
 
     //caso o numero digitado ja contenha  um . apenas retorna
-    if(numConcat === '.' && numAtual.indexOf('.') > -1){
+    if((numConcat === '.'|| numConcat === ',' ) && numAtual.indexOf('.') > -1){
       return numAtual;
     }
 
@@ -87,9 +117,15 @@ export class CalculadoraComponent implements OnInit {
     if(this.resultado !== null){
       return this.resultado.toString();
     }
-    if(this.numero2 !== null){
-      return this.numero2;
+    if(this.operacao !== null && this.numero2 === null){
+      return this.numero1 + this.operacao;
     }
-    return this.numero1;
+    if(this.numero2 !== null){
+      return this.numero1 + this.operacao + this.numero2;
+    }
+    return this.numero1; 
+
+    
   }
+  
 }
